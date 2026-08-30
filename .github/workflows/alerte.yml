@@ -1,0 +1,20 @@
+name: Alerte Defi
+
+on:
+  schedule:
+    - cron: '*/5 ****'
+  workflow_dispatch: 
+
+jobs:
+  run-script:
+   runs-on: ubuntu-latest
+   steps:
+     - uses: actions/checkout@v4
+     - uses: actions/setup-python@v5
+       with:
+         python-version: "3.11"
+     - run: pip install requests
+     - run: python AAVE-TECTONIC.py
+       env:
+         TOKEN_TELEGRAM: ${{ secrets.TOKEN_TELEGRAM }}
+         CHAT_ID: ${{ secrets.CHAT_ID }}
