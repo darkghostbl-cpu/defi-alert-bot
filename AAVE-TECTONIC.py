@@ -42,7 +42,8 @@ def calculer_marge(prix_actuel, prix_liquidation):
     return marge
 def envoyer_alerte(message):
     url = f"https://api.telegram.org/bot{TOKEN_TELEGRAM}/sendMessage"
-    requests.get(url, params={"chat_id": CHAT_ID, "text": message})
+    reponse = requests.get(url, params={"chat_id": CHAT_ID, "text": message})
+    print("Statut Telegram:", reponse.status_code, reponse.text)
 
 for i in range(len(cryptos)):
     nom = cryptos[i]
