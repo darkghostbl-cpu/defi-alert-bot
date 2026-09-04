@@ -59,17 +59,18 @@ def sauvegarder_marge_aujourdhui(nom, marge):
 
     with open("historique_marges.json", "w") as fichier:
         json.dump(donnees, fichier) 
-    def marge_hier(nom):
-        if not os.path.exists("historique_marges.json"):
-            return None
+def marge_hier(nom):
+    if not os.path.exists("historique_marges.json"):
+        return None
 
-        with open("historique_marges.json", "r") as fichier:
-            donnees = json.load(fichier)
+    with open("historique_marges.json", "r") as fichier:
+        donnees = json.load(fichier)
 
-        if nom not in donnees:
-            return None
+    if nom not in donnees:
+        return None
 
-        return donnees[nom]["marge"]
+    return donnees[nom]["marge"]
+
 def creneaux_requis(marge_actuelle, nom):
     hier = marge_hier(nom)
 
@@ -119,12 +120,15 @@ for i in range(len(cryptos)):
 
     if marge < 10:
         print(f"{nom} - DANGER : marge de {marge:.1f}%")
-        envoyer_alerte(f"DANGER : {nom} a une marge de {marge:.1f}% avant liquidation !")
     elif marge < 30:
         print(f"{nom} - Attention : marge de {marge:.1f}%")
-        envoyer_alerte(f"ATTENTION : {nom} a une marge de {marge:.1f}% avant liquidation")
     else:
         print(f"{nom} - OK : marge confortablede {marge:.1f}%")
+    creneaux = creneaux_requis(marge, nom)
+
+    if heure_actuelle in creneaux and not creneau_deja_envoye(nom, heure_actuelle):
+        envoyer_alerte(f"{nom} a une marge de {marge:.1f}% avant liquidation")
+        marquer_creneau_envoye(nom, heure_actuelle)
        
 reponse = requests.get("https://api.coingecko.com/api/v3/simple/price?ids=crypto-com-chain,coinbase-wrapped-btc&vs_currencies=eur")
 
@@ -140,4 +144,3 @@ with open("historique.txt", "a") as fichier:
         prix_liquidation = prix_liquidations[i]
         marge = calculer_marge(prix_actuel, prix_liquidation)
         fichier.write(f"{nom} : marge de {marge:.1f}%\n")
-    
