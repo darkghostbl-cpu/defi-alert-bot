@@ -2,6 +2,7 @@ import requests
 from datetime import datetime
 import os 
 import json
+from zoneinfo import ZoneInfo
 
 TOKEN_TELEGRAM = os.environ.get("TOKEN_TELEGRAM")
 CHAT_ID = os.environ.get("CHAT_ID")
@@ -45,12 +46,76 @@ def envoyer_alerte(message):
     reponse = requests.get(url, params={"chat_id": CHAT_ID, "text": message})
     print("Statut Telegram:", reponse.status_code, reponse.text)
 
+def sauvegarder_marge_aujourdhui(nom, marge):
+    donnees = {}
+    if os.path.exists("historique_marges.json"):
+        with open("historique_marges.json", "r") as fichier:
+            donnees = json.load(fichier)
+
+    donnees[nom] = {
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "marge": marge
+    }
+
+    with open("historique_marges.json", "w") as fichier:
+        json.dump(donnees, fichier) 
+    def marge_hier(nom):
+        if not os.path.exists("historique_marges.json"):
+            return None
+
+        with open("historique_marges.json", "r") as fichier:
+            donnees = json.load(fichier)
+
+        if nom not in donnees:
+            return None
+
+        return donnees[nom]["marge"]
+def creneaux_requis(marge_actuelle, nom):
+    hier = marge_hier(nom)
+
+    if hier is None:
+        return [16]
+
+    baisse = hier - marge_actuelle
+
+    if baisse > 10:
+        return [9, 16, 21]
+    else:
+        return [16]
+
+def creneau_deja_envoye(nom, heure):
+    if not os.path.exists("alertes_envoyees.json"):
+        return False
+
+    with open("alertes_envoyees.json", "r") as fichier:
+        donnees = json.load(fichier)
+
+    cle = nom + "_" + str(heure) + "_" + datetime.now().strftime("%Y-%m-%d")
+    return cle in donnees
+
+
+def marquer_creneau_envoye(nom, heure):
+    donnees = {}
+    if os.path.exists("alertes_envoyees.json"):
+        with open("alertes_envoyees.json", "r") as fichier:
+            donnees = json.load(fichier)
+
+    cle = nom + "_" + str(heure) + "_" + datetime.now().strftime("%Y-%m-%d")
+    donnees[cle] = True
+
+    with open("alertes_envoyees.json", "w") as fichier:
+        json.dump(donnees, fichier)
+
+maintenant_paris = datetime.now(ZoneInfo("Europe/Paris"))
+heure_actuelle = maintenant_paris.hour
+
 for i in range(len(cryptos)):
     nom = cryptos[i]
     prix_actuel =donnees[nom]["eur"]
     prix_liquidation = prix_liquidations[i]
 
     marge = calculer_marge(prix_actuel, prix_liquidation)
+    sauvegarder_marge_aujourdhui(nom, marge)
 
     if marge < 10:
         print(f"{nom} - DANGER : marge de {marge:.1f}%")
@@ -75,3 +140,4 @@ with open("historique.txt", "a") as fichier:
         prix_liquidation = prix_liquidations[i]
         marge = calculer_marge(prix_actuel, prix_liquidation)
         fichier.write(f"{nom} : marge de {marge:.1f}%\n")
+    
