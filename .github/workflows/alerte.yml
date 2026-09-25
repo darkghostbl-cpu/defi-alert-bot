@@ -2,7 +2,7 @@ name: Alerte Defi
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '08 * * *'
   workflow_dispatch: 
 
 jobs:
