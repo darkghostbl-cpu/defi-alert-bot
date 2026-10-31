@@ -1,6 +1,6 @@
 # 1. COLLE TON TOKEN ET TON CHAT_ID ICI (entre guillemets)
 TOKEN_TELEGRAM = "COLLE_TON_NOUVEAU_TOKEN_ICI"
-CHAT_ID = "COLLE_TON_CHAT_ID_ICI"  # tu l'auras avec le petit fichier
+CHAT_ID = "8765870070:AAHEfC6-eIDlfdeO424G_e0KkkpWC0xY2uo"  # tu l'auras avec le petit fichier
 
 # 2. Le reste c'est ton bot complet, tu touches à rien en dessous
 import requests, os, json
