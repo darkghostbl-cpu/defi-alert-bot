@@ -6,7 +6,7 @@ TOKEN_TELEGRAM = os.environ.get("TOKEN_TELEGRAM")
 CHAT_ID_SECRET = os.environ.get("CHAT_ID")
 
 cryptos = ["crypto-com-chain", "coinbase-wrapped-btc"]
-prix_liquidations = [0.037, 20850]  # prix de liquidation en $ si tu veux tout en $
+prix_liquidations = [0.0289, 18200]  # prix de liquidation en $ si tu veux tout en $
 
 def calculer_marge(p, liq):
     return ((p - liq) / p) * 100
